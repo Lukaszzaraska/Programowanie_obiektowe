@@ -21,9 +21,14 @@ namespace lab_1
         {
             return value < 0 ? null : new Money(value, currency);
         }
-        public static Money? OfWithException(decimal value, Currency currency)
+        public static Money OfWithException(decimal value, Currency currency)
         {
             return value < 0 ? throw new Exception("Error") : new Money(value, currency);
+        }
+         public static Money ParseValue(string valueStr, Currency currency)
+        {
+            decimal valueDec = decimal.Parse(valueStr);
+            return new Money(valueDec, currency);
         }
         public decimal Value
         {
@@ -71,9 +76,8 @@ namespace lab_1
         {
             PersonPropertis personPropertis = PersonPropertis.Of("Adam");
             Console.WriteLine(personPropertis.FirstName);
-            DateTime dateTime = DateTime.Parse("03-02-2022");
-            Console.WriteLine(dateTime);
-
+            Money money = Money.ParseValue("12,1", Currency.USD);
+            Console.WriteLine($"{money.Value} { money.Currency}");
             
         }
     }
