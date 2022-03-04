@@ -12,11 +12,13 @@ namespace lab_1
     {
         private readonly decimal _value;
         private readonly Currency _currency;
+        //Konstruktor
         private Money(decimal value, Currency currency)
         {
             _value = value;
             _currency = currency;
         }
+        //Metody statyczne zapobiegające Podaniu ujemnej wartości 
         public static Money? Of(decimal value, Currency currency)
         {
             return value < 0 ? null : new Money(value, currency);
@@ -25,6 +27,7 @@ namespace lab_1
         {
             return value < 0 ? throw new Exception("Error") : new Money(value, currency);
         }
+        //Parsowanie złożonego typu własnego 
          public static Money ParseValue(string valueStr, Currency currency)
         {
             decimal valueDec = decimal.Parse(valueStr);
@@ -41,8 +44,83 @@ namespace lab_1
          
 
         }
-       
-}
+        //Definiowanie operatorów matematycznych własnych typów
+        public static Money operator *(Money money, decimal factor)
+        {
+            return new Money(money.Value * factor, money.Currency);
+        }
+        public static Money operator +(Money money, Money money1)
+        {
+            return new Money(money.Value + money1.Value, money.Currency);
+        }
+        //Deklaracja działania < wymaga deklaracji >
+        public static bool operator >(Money a, Money b)
+        {
+            return a.Value > b.Value;
+        }
+        public static bool operator <(Money a, Money b)
+        {
+            return a.Value < b.Value;
+        }
+        //Rzutowanie w sposób jawny (explicit) kiedy istnieje możliwość utraty danych i nie jawny (implicit) naprzykład z int na double nie możemy starcić danych
+        public static explicit operator float(Money money)
+        {
+            return (float)money.Value;
+        }
+        
+    }
+    public class Tank
+    {
+        public readonly int Capacity;
+        private int _level;
+        public Tank(int capacity)
+        {
+            Capacity = capacity;
+        }
+        public int Level
+        {
+            get
+            {
+                return _level;
+            }
+            // Uniemożliwia ustawienie wartości mniejszej niż zero
+            private set
+            {
+                if (value < 0 || value > Capacity)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+                _level = value;
+            }
+        }
+        public bool Refuel(int amount)
+        {
+            if (amount < 0)
+            {
+                return false;
+            }
+            if (_level + amount > Capacity)
+            {
+                return false;
+            }
+            _level += amount;
+            return true;
+        }
+        public bool Consume(int amount)
+        {
+            if(amount < _level)
+            {
+                return false;
+            }
+            if(amount < 0)
+            {
+                return false;
+            }
+            _level -= amount;
+            return true;
+        }
+    }
+
     public class PersonPropertis
     {
         private string firstName;
@@ -77,8 +155,9 @@ namespace lab_1
             PersonPropertis personPropertis = PersonPropertis.Of("Adam");
             Console.WriteLine(personPropertis.FirstName);
             Money money = Money.ParseValue("12,1", Currency.USD);
-            Console.WriteLine($"{money.Value} { money.Currency}");
-            
+            var price = Money.Of(100m, Currency.PLN);
+            var result = price * 0.25m;
+            Console.WriteLine($"result.Value: {result.Value} result.Currency:{result.Currency}"); 
         }
     }
 }
