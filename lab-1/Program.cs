@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace lab_1
 {
@@ -42,31 +41,48 @@ namespace lab_1
         public Currency Currency
         {
             get { return _currency; }
-
-
         }
         //Definiowanie operatorów matematycznych własnych typów
         public static Money operator *(Money money, decimal factor)
         {
-            return new Money(money.Value * factor, money.Currency);
+            return Of(money.Value* factor, money.Currency);
+        }
+        public static Money operator *(decimal factor, Money money)
+        {
+            return Of(money.Value * factor, money.Currency);
         }
         public static Money operator +(Money money, Money money1)
         {
-            return new Money(money.Value + money1.Value, money.Currency);
+            if (money.Currency!=money1.Currency) throw new Exception() ;
+            return Of(money.Value + money1.Value, money.Currency);
         }
         //Deklaracja działania < wymaga deklaracji >
         public static bool operator >(Money a, Money b)
         {
+            if (a.Currency != b.Currency) throw new Exception();
             return a.Value > b.Value;
         }
         public static bool operator <(Money a, Money b)
         {
+            if (a.Currency != b.Currency) throw new Exception();
             return a.Value < b.Value;
+        }
+        public static bool operator ==(Money a, Money b)
+        {
+            return a.Value == b.Value&&a.Currency==b.Currency;
+        }
+        public static bool operator !=(Money a, Money b)
+        {
+            return !(a == b);
         }
         //Rzutowanie w sposób jawny (explicit) kiedy istnieje możliwość utraty danych i nie jawny (implicit) naprzykład z int na double nie możemy starcić danych
         public static explicit operator float(Money money)
         {
             return (float)money.Value;
+        }
+        public static explicit operator decimal(Money money)
+        {
+            return money.Value;
         }
         //Nadpisanie Tostring we własnych metodach jest wskazane żeby lepiej reprezentować dane domyśłnie zwraca nazwe klasy
         public override string ToString()
@@ -77,12 +93,28 @@ namespace lab_1
         public int CompareTo(Money other)
         {
             if (ReferenceEquals(this, other)) return 0;
-            if (ReferenceEquals(null, other)) return 1;
+            if (other is null) return 1;
             var currencyComparison = _currency.CompareTo(other._currency);
             if (currencyComparison != 0) return currencyComparison;
             return _value.CompareTo(other._value);
         }
+        public bool Equals(Money other)
+        {
+            if (other is not null)
+            {
+                if (ReferenceEquals(this, other)) return true;
+                return _value == other._value && _currency.Equals(other._currency);
+            }
 
+            return false;
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj is null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Money)obj);
+        }
     }
     public static class MoneyExtension
     {
@@ -281,11 +313,12 @@ namespace lab_1
             /*  Money money = Money.Of(100, Currency.PLN);
                Console.WriteLine(money.Percent(23.45m));*/
 
-         /*  Money money = Money.Of(100, Currency.PLN);
-           var result = money.ToCurency(Currency.PLN, 3.1m);
-           var result1 = money.ToCurency(Currency.USD, 4.1m);
-           Console.WriteLine(result);
-           Console.WriteLine(result1);*/
+            /*  Money money = Money.Of(100, Currency.PLN);
+              var result = money.ToCurency(Currency.PLN, 3.1m);
+              var result1 = money.ToCurency(Currency.USD, 4.1m);
+              Console.WriteLine(result);
+              Console.WriteLine(result1);*/
+            
         }
     }
 }
